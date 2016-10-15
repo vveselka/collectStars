@@ -1,0 +1,31 @@
+
+.player {
+    background-color: #777;
+    height: 20px;
+    width: 20px;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #777;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.grid {
+    display: inline-block;
+    float: left;
+}
+
+.finalText {
+    font-size: 30px;
+    color: #3c8661;
+    margin-left: 10px;
+    font-weight: 600;
+}
+
+.score {
+    display: inline-block;
+    margin-left: 10px;
+}

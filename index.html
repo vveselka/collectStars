@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Catch all stars</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+</head>
+<body>
+    <h1>Catch all stars</h1>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        var Player = new React.createClass({
+            render: function() {
+                return <div className="player">
+                </div>;
+            },
+        });
+
+        var Star = new React.createClass({
+            render: function() {
+                return <div>
+                    &#9733;
+                </div>
+            },
+        });
+
+        var Cell = new React.createClass({
+            render: function() {
+                return <div className="cell">
+                    {this.props.children}
+                </div>;
+            },
+        });
+
+        var Score = new React.createClass({
+            propTypes: {
+                score: React.PropTypes.number.isRequired,
+                finalText: React.PropTypes.string.isRequired,
+            },
+            render: function() {
+                return <div className="score">
+                    Your score: {this.props.score}
+                    <div className="finalText">
+                        {this.props.finalText}
+                    </div>
+                </div>
+            },
+        });
+
+        function generateUniqueStars(numberOfStars, width, height) {
+            var stars = [];
+            var starsCoordinates = [];
+            var n = width * height;
+            for(var i = 0; i < numberOfStars; i ++) {
+                while(true) {
+                    var randomNumber = Math.floor(Math.random() * n) + 1;
+                    if(stars.indexOf(randomNumber) === -1) {
+                        stars.push(randomNumber);
+                        break;
+                    }       
+                }
+            }
+            for (var i = 0; i < numberOfStars; i ++) {
+                var x = stars[i] % width;
+                var y = Math.floor(stars[i] / width);
+                starsCoordinates.push([x, y]);
+            }
+            return starsCoordinates;
+        }
+
+        var Grid = new React.createClass({
+            propTypes : {
+                width: React.PropTypes.number.isRequired,
+                height: React.PropTypes.number.isRequired,
+                numberOfStars: React.PropTypes.number.isRequired,
+            },
+
+            getInitialState: function() {
+                return {
+                    playerPosition: {
+                        x: 0,
+                        y: 0,
+                    },
+                    stars: generateUniqueStars(this.props.numberOfStars, this.props.width, this.props.height),
+                    score: 0,
+                    finaltext: '',
+                };
+            },
+
+            componentWillMount:function() {
+                document.addEventListener("keydown", this.handleKeyPress, true);
+            },
+
+            render: function() {
+                var grid = [];
+                for(var j = 0; j < this.props.height; j++) {
+                    var row = [];
+                    for(var i = 0; i < this.props.width; i++) {
+                        var inCell = undefined;
+                        if (i === this.state.playerPosition.x && j === this.state.playerPosition.y) {
+                            inCell = <Player />;
+                        } else {
+                            if (this.isCellWithStar(i, j)) {
+                               inCell = <Star /> 
+                            } else inCell = undefined;
+                        }
+                        row.push(<Cell key={i}>{inCell}</Cell>);
+                    }
+                    grid.push(row);
+                } 
+                
+                grid = grid.map(function(gridRow, index) {
+                    return <div key={index}>{gridRow}</div>;
+                });
+
+                var finalText = '';
+                if (this.state.score === this.props.numberOfStars) {
+                    finalText = 'Well done! You are awesome!';
+                }
+                return <div>
+                    <div className="grid">
+                        {grid}
+                    </div>
+                    <Score score={this.state.score} finalText={finalText} />
+                </div>;
+                
+            },
+
+            isCellWithStar: function(x, y) {
+                return this.state.stars.some(function(starsCoordinates, index) {
+
+                    return starsCoordinates[0] === x && starsCoordinates[1] === y;
+                });
+            },
+
+            handlePlayer : function(playerX, playerY) {
+                var newStars = this.state.stars;
+                var newScore = this.state.score;
+                for (var i = 0; i < this.state.stars.length; i++) {
+                    if (this.state.stars[i][0] === playerX && this.state.stars[i][1] === playerY) {
+                        newStars = newStars.slice();
+                        newStars.splice(i, 1);
+                        newScore++;
+                    }
+                }
+
+                this.setState({
+                    stars: newStars,
+                    score: newScore,
+                    playerPosition: {
+                        x: playerX,
+                        y: playerY,
+                    }
+                });
+            },
+
+            moveDown: function() {
+                if(this.state.playerPosition.y + 1 < this.props.height) {
+                    this.handlePlayer(this.state.playerPosition.x, this.state.playerPosition.y + 1);
+                }
+            },
+            moveUp: function() {
+                if(this.state.playerPosition.y > 0) {
+                    this.handlePlayer(this.state.playerPosition.x, this.state.playerPosition.y - 1);
+                }
+            },
+            moveRight: function() {
+                if(this.state.playerPosition.x < this.props.width - 1) {
+                    this.handlePlayer(this.state.playerPosition.x + 1, this.state.playerPosition.y);   
+                }
+            },
+            moveLeft: function() {
+                if(this.state.playerPosition.x > 0) {
+                    this.handlePlayer(this.state.playerPosition.x - 1, this.state.playerPosition.y);      
+                }
+            },
+            handleKeyPress: function(event) {
+                switch(event.keyCode) {
+                    case 37:
+                        this.moveLeft();
+                        break;
+                    case 38:
+                        this.moveUp();
+                        break;
+                    case 39:
+                        this.moveRight();
+                        break;
+                    case 40:
+                        this.moveDown();
+                        break;
+                    default:
+                        break;
+                }
+            },
+        });
+
+        ReactDOM.render(
+            <Grid width={15} height={10} numberOfStars={15} />,
+            document.getElementById('app')
+        );
+    </script>
+</body>
+</html>

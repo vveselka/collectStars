@@ -6,6 +6,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
     <h1>Catch all stars</h1>
@@ -39,13 +40,18 @@
             propTypes: {
                 score: React.PropTypes.number.isRequired,
                 finalText: React.PropTypes.string.isRequired,
+                showHint: React.PropTypes.bool.isRequired,
             },
             render: function() {
-                return <div className="score">
-                    Your score: {this.props.score}
-                    <div className="finalText">
-                        {this.props.finalText}
-                    </div>
+              if(this.props.showHint) {
+                return <div className='score text-muted'>
+                  Your score: {this.props.score} (use arrows to catch the stars :)
+                </div>
+              } else return <div className="score">
+                  Your score: {this.props.score}
+                  <div className="finalText">
+                      {this.props.finalText}
+                  </div>
                 </div>
             },
         });
@@ -60,7 +66,7 @@
                     if(stars.indexOf(randomNumber) === -1) {
                         stars.push(randomNumber);
                         break;
-                    }       
+                    }
                 }
             }
             for (var i = 0; i < numberOfStars; i ++) {
@@ -87,6 +93,7 @@
                     stars: generateUniqueStars(this.props.numberOfStars, this.props.width, this.props.height),
                     score: 0,
                     finaltext: '',
+                    showHint: true,
                 };
             },
 
@@ -104,14 +111,14 @@
                             inCell = <Player />;
                         } else {
                             if (this.isCellWithStar(i, j)) {
-                               inCell = <Star /> 
+                               inCell = <Star />
                             } else inCell = undefined;
                         }
                         row.push(<Cell key={i}>{inCell}</Cell>);
                     }
                     grid.push(row);
-                } 
-                
+                }
+
                 grid = grid.map(function(gridRow, index) {
                     return <div key={index}>{gridRow}</div>;
                 });
@@ -124,9 +131,9 @@
                     <div className="grid">
                         {grid}
                     </div>
-                    <Score score={this.state.score} finalText={finalText} />
+                    <Score score={this.state.score} finalText={finalText} showHint={this.state.showHint} />
                 </div>;
-                
+
             },
 
             isCellWithStar: function(x, y) {
@@ -150,6 +157,7 @@
                 this.setState({
                     stars: newStars,
                     score: newScore,
+                    showHint: false,
                     playerPosition: {
                         x: playerX,
                         y: playerY,
@@ -169,12 +177,12 @@
             },
             moveRight: function() {
                 if(this.state.playerPosition.x < this.props.width - 1) {
-                    this.handlePlayer(this.state.playerPosition.x + 1, this.state.playerPosition.y);   
+                    this.handlePlayer(this.state.playerPosition.x + 1, this.state.playerPosition.y);
                 }
             },
             moveLeft: function() {
                 if(this.state.playerPosition.x > 0) {
-                    this.handlePlayer(this.state.playerPosition.x - 1, this.state.playerPosition.y);      
+                    this.handlePlayer(this.state.playerPosition.x - 1, this.state.playerPosition.y);
                 }
             },
             handleKeyPress: function(event) {

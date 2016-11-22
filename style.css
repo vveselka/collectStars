@@ -1,13 +1,13 @@
 
 .player {
-    background-color: #777;
-    height: 20px;
-    width: 20px;
+    background-color: #6a9e64;
+    height: 25px;
+    width: 25px;
 }
 
 .cell {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     border: 1px solid #777;
     display: inline-block;
     vertical-align: top;
@@ -28,4 +28,5 @@
 .score {
     display: inline-block;
     margin-left: 10px;
+    font-size: 17px;
 }

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
+  <div class="container">
     <h1>Catch all stars</h1>
     <div id="app"></div>
 
@@ -39,6 +40,7 @@
         var Score = new React.createClass({
             propTypes: {
                 score: React.PropTypes.number.isRequired,
+                steps: React.PropTypes.number.isRequired,
                 finalText: React.PropTypes.string.isRequired,
                 showHint: React.PropTypes.bool.isRequired,
             },
@@ -48,7 +50,12 @@
                   Your score: {this.props.score} (use arrows to catch the stars :)
                 </div>
               } else return <div className="score">
-                  Your score: {this.props.score}
+                  <div>
+                    Your score: {this.props.score}
+                  </div>
+                  <div className='steps text-muted'>
+                    Your steps: {this.props.steps}
+                  </div>
                   <div className="finalText">
                       {this.props.finalText}
                   </div>
@@ -59,7 +66,7 @@
         function generateUniqueStars(numberOfStars, width, height) {
             var stars = [];
             var starsCoordinates = [];
-            var n = width * height;
+            var n = width * height - 1;
             for(var i = 0; i < numberOfStars; i ++) {
                 while(true) {
                     var randomNumber = Math.floor(Math.random() * n) + 1;
@@ -94,6 +101,7 @@
                     score: 0,
                     finaltext: '',
                     showHint: true,
+                    steps: 0,
                 };
             },
 
@@ -131,7 +139,7 @@
                     <div className="grid">
                         {grid}
                     </div>
-                    <Score score={this.state.score} finalText={finalText} showHint={this.state.showHint} />
+                    <Score score={this.state.score} finalText={finalText} showHint={this.state.showHint} steps={this.state.steps} />
                 </div>;
 
             },
@@ -151,18 +159,21 @@
                         newStars = newStars.slice();
                         newStars.splice(i, 1);
                         newScore++;
+                        break;
                     }
                 }
-
-                this.setState({
+                this.setState(function(prevState) {
+                  return {
                     stars: newStars,
                     score: newScore,
                     showHint: false,
                     playerPosition: {
-                        x: playerX,
-                        y: playerY,
-                    }
-                });
+                      x: playerX,
+                      y: playerY,
+                    },
+                    steps: prevState.steps + 1,
+                  }
+                })
             },
 
             moveDown: function() {
@@ -210,5 +221,6 @@
             document.getElementById('app')
         );
     </script>
+  </div>
 </body>
 </html>

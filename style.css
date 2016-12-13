@@ -1,6 +1,9 @@
 
+h1 {
+  font-family: 'Russo One', sans-serif;
+}
 .player {
-    background-color: #6a9e64;
+    background-color: #34495E;
     height: 25px;
     width: 25px;
 }
@@ -8,9 +11,10 @@
 .cell {
     width: 25px;
     height: 25px;
-    border: 1px solid #777;
+    border: 1px solid #34495E;
     display: inline-block;
     vertical-align: top;
+    background-color: #EBEDEF;
 }
 
 .grid {
@@ -20,17 +24,64 @@
 
 .finalText {
     font-size: 30px;
-    color: #3c8661;
+    color: #34495E;
     margin-left: 10px;
-    font-weight: 600;
+    font-family: 'Russo One', sans-serif;
 }
 
 .score {
-    display: inline-block;
     margin-left: 10px;
     font-size: 17px;
+    color:#34495E;
 }
 
 .steps {
   font-size: 12px;
+  color:#34495E;
+}
+
+.startAgainForm {
+    margin-top: 20px;
+    margin-left: 20px;
+    background-color: #EBEDEF;
+    padding: 10px;
+    width: 270px;
+
+}
+
+input {
+  margin-right: 5px;
+}
+
+.startButton {
+    display: inline-block;
+    border: 1px solid #34495E;
+    background-color: #AEB6BF;
+    height: 29px;
+    width: 100px;
+    position: relative;
+    top: -46px;
+    font-size: 18px;
+    left: 13px;
+    text-align: center;
+}
+
+.startButton {
+  cursor: pointer;
+}
+
+.error {
+  color: #CD6155;
+  margin-top: 5px;
+}
+
+.label {
+  font-size: 15px;
+  width: 60px;
+  display: inline-block;
+  color: #34495E;
+}
+
+form {
+  display: inline-block;
 }

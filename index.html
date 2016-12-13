@@ -2,11 +2,13 @@
 <html>
 <head>
     <title>Catch all stars</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
   <div class="container">
@@ -41,7 +43,7 @@
             propTypes: {
                 score: React.PropTypes.number.isRequired,
                 steps: React.PropTypes.number.isRequired,
-                finalText: React.PropTypes.string.isRequired,
+                finalText: React.PropTypes.string,
                 showHint: React.PropTypes.bool.isRequired,
             },
             render: function() {
@@ -84,13 +86,89 @@
             return starsCoordinates;
         }
 
+        var App = React.createClass({
+          getInitialState() {
+            return {
+              width: this.props.width,
+              height: this.props.height,
+              numberOfStars: this.props.numberOfStars,
+            }
+          },
+          render() {
+            return <div>
+              <Grid width={this.state.width} height={this.state.height} numberOfStars={this.state.numberOfStars} startAgain={this.startAgain}/>
+            </div>
+          },
+          startAgain(width, height, stars) {
+            this.setState({
+              width: width + 1,
+              height: height + 1,
+              numberOfStars: stars,
+            })
+          }
+        });
+
+        var StartAgain = React.createClass({
+          getInitialState() {
+            return {
+                width: '',
+                height: '',
+                stars: '',
+                error: '',
+            }
+          },
+          render() {
+            return <div className='startAgainForm'>
+              <form>
+                <div className="form-group">
+                  <label className='label'>Width</label>
+                  <input value={this.state.width} id='width' onChange={this.handleInput} type='number' max='20' min='5' />
+                </div>
+                <div className='form-group'>
+                  <label className='label'>Height</label>
+                  <input value={this.state.height} id="height" onChange={this.handleInput} type='number' max='20' min='5' />
+                </div>
+                <div className='form-group'>
+                </div>
+                  <label className='label'>Stars</label>
+                  <input value={this.state.stars} id="stars" onChange={this.handleInput} type='number' max='24' min='1' />
+              </form>
+              <div className='startButton' onClick={this.startGameAgain} >Start Again</div>
+              <div className='error text-muted'>
+                {this.state.error}
+              </div>
+            </div>
+          },
+          handleInput(e) {
+            this.setState({
+              [e.target.id]: e.target.value,
+              error: '',
+            })
+          },
+          startGameAgain() {
+            if(this.state.width === '' || this.state.height === '' || this.state.stars === '') {
+              this.setState({
+                error: "Please enter width and height of the board, and number of stars",
+              })
+            } else if(this.state.width > 20 || this.state.width < 5 || this.state.height > 20 || this.state.height < 5 || this.state.stars < 1 || this.state.stars > 25) {
+              this.setState({
+                error: 'oops, width and height should be in between 5 and 20, the number of stars <25'
+              })
+            } else {
+              this.setState({
+                error: '',
+              });
+              this.props.startAgain(parseInt(this.state.width), parseInt(this.state.height), parseInt(this.state.stars));
+            }
+          }
+        });
+
         var Grid = new React.createClass({
             propTypes : {
                 width: React.PropTypes.number.isRequired,
                 height: React.PropTypes.number.isRequired,
                 numberOfStars: React.PropTypes.number.isRequired,
             },
-
             getInitialState: function() {
                 return {
                     playerPosition: {
@@ -99,16 +177,26 @@
                     },
                     stars: generateUniqueStars(this.props.numberOfStars, this.props.width, this.props.height),
                     score: 0,
-                    finaltext: '',
                     showHint: true,
                     steps: 0,
                 };
             },
-
-            componentWillMount:function() {
-                document.addEventListener("keydown", this.handleKeyPress, true);
+            componentDidMount:function() {
+              document.addEventListener("keydown", this.handleKeyPress, true);
             },
-
+            componentWillReceiveProps(props) {
+              var newStars = generateUniqueStars(props.numberOfStars, props.width, props.height);
+              this.setState({
+                playerPosition: {
+                    x: 0,
+                    y: 0,
+                },
+                stars: newStars,
+                score: 0,
+                showHint: true,
+                steps: 0,
+              })
+            },
             render: function() {
                 var grid = [];
                 for(var j = 0; j < this.props.height; j++) {
@@ -133,24 +221,30 @@
 
                 var finalText = '';
                 if (this.state.score === this.props.numberOfStars) {
-                    finalText = 'Well done! You are awesome!';
-                }
-                return <div>
-                    <div className="grid">
+                    finalText = 'Well done! ';
+                    return <div>
+                        <div className="grid">
+                            {grid}
+                        </div>
+                        <div style={{display:'inline-block'}}>
+                          <Score score={this.state.score} finalText={finalText} showHint={this.state.showHint} steps={this.state.steps} />
+                          <StartAgain startAgain={this.props.startAgain} />
+                        </div>
+                    </div>;
+                } else return <div>
+                    <div id="grid" className="grid">
                         {grid}
                     </div>
-                    <Score score={this.state.score} finalText={finalText} showHint={this.state.showHint} steps={this.state.steps} />
+                    <div style={{display:'inline-block'}}>
+                      <Score score={this.state.score} showHint={this.state.showHint} steps={this.state.steps} />
+                    </div>
                 </div>;
-
             },
-
             isCellWithStar: function(x, y) {
                 return this.state.stars.some(function(starsCoordinates, index) {
-
                     return starsCoordinates[0] === x && starsCoordinates[1] === y;
                 });
             },
-
             handlePlayer : function(playerX, playerY) {
                 var newStars = this.state.stars;
                 var newScore = this.state.score;
@@ -175,7 +269,6 @@
                   }
                 })
             },
-
             moveDown: function() {
                 if(this.state.playerPosition.y + 1 < this.props.height) {
                     this.handlePlayer(this.state.playerPosition.x, this.state.playerPosition.y + 1);
@@ -197,6 +290,7 @@
                 }
             },
             handleKeyPress: function(event) {
+              console.log(event);
                 switch(event.keyCode) {
                     case 37:
                         this.moveLeft();
@@ -217,9 +311,10 @@
         });
 
         ReactDOM.render(
-            <Grid width={15} height={10} numberOfStars={15} />,
+            <App width={15} height={10} numberOfStars={10} />,
             document.getElementById('app')
         );
+
     </script>
   </div>
 </body>
